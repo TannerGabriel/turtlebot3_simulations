@@ -13,25 +13,9 @@
         </camera>
       </gui>
 
-      <physics type="ode">
-        <real_time_update_rate>1000.0</real_time_update_rate>
+      <physics name="1ms" type="ignore">
         <max_step_size>0.001</max_step_size>
-        <real_time_factor>1</real_time_factor>
-        <ode>
-          <solver>
-            <type>quick</type>
-            <iters>150</iters>
-            <precon_iters>0</precon_iters>
-            <sor>1.400000</sor>
-            <use_dynamic_moi_rescaling>1</use_dynamic_moi_rescaling>
-          </solver>
-          <constraints>
-            <cfm>0.00001</cfm>
-            <erp>0.2</erp>
-            <contact_max_correcting_vel>2000.000000</contact_max_correcting_vel>
-            <contact_surface_layer>0.01000</contact_surface_layer>
-          </constraints>
-        </ode>
+        <real_time_factor>0.0</real_time_factor>
       </physics>
 
       <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
@@ -73,10 +57,10 @@
         <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sun</uri>
       </include>
 
-      <model name="campus_first_floor">
+      <model name="campus_model">
         <static>1</static>
         <include>
-          <uri>model://campus_first_floor</uri>
+          <uri>model://campus_model</uri>
         </include>
       </model>
 
