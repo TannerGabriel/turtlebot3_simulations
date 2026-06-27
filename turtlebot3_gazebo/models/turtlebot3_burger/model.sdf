@@ -162,6 +162,85 @@
       </sensor>
     </link>
 
+    <!-- ================================================================
+         Oak-D depth camera (forward-facing RGBD), emulating the unit
+         mounted on the real Burger. Provides RGB + registered depth for
+         RTAB-Map visual loop closure (see exploration_bringup/config/
+         rtabmap.yaml). The LiDAR still builds the occupancy grid; depth
+         is a localization aid only.
+
+         Specs chosen to approximate the Oak-D:
+           - horizontal_fov 1.204 rad (~69 deg)
+           - clip 0.2 .. 12.0 m (Oak-D usable stereo depth)
+           - 15 Hz (depth is expensive; on-robot we decimate further)
+
+         Frame: gz_frame_id is the ROS optical frame name. The matching
+         base_link -> oakd_rgb_optical_frame TF (with the REP-103 optical
+         rotation) must be added to the burger URDF in the next step;
+         until then RTAB-Map cannot consume these topics.
+         ================================================================ -->
+    <link name="oakd_camera_link">
+      <inertial>
+        <pose>0.045 0 0.130 0 0 0</pose>
+        <inertia>
+          <ixx>1e-05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-05</iyy>
+          <iyz>0</iyz>
+          <izz>1e-05</izz>
+        </inertia>
+        <mass>0.06</mass>
+      </inertial>
+
+      <visual name="oakd_visual">
+        <pose>0.045 0 0.130 0 0 0</pose>
+        <geometry>
+          <box>
+            <!-- Oak-D enclosure ~ 91 x 28 x 17.5 mm (W x H x D) -->
+            <size>0.018 0.091 0.025</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1.0</ambient>
+          <diffuse>0.1 0.1 0.1 1.0</diffuse>
+        </material>
+      </visual>
+
+      <sensor name="oakd" type="rgbd_camera">
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <update_rate>15</update_rate>
+        <pose>0.045 0 0.130 0 0 0</pose>
+        <topic>oakd</topic>
+        <gz_frame_id>oakd_rgb_optical_frame</gz_frame_id>
+        <camera name="oakd">
+          <camera_info_topic>oakd/camera_info</camera_info_topic>
+          <horizontal_fov>1.204</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.2</near>
+            <far>12.0</far>
+          </clip>
+          <depth_camera>
+            <clip>
+              <near>0.2</near>
+              <far>12.0</far>
+            </clip>
+          </depth_camera>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.005</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </link>
+
     <link name="wheel_left_link">
 
       <inertial>
@@ -368,6 +447,15 @@
       <parent>base_link</parent>
       <child>base_scan</child>
       <pose>-0.032 0 0.171 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+    <joint name="oakd_camera_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>oakd_camera_link</child>
+      <pose>0.045 0 0.130 0 0 0</pose>
       <axis>
         <xyz>0 0 1</xyz>
       </axis>
