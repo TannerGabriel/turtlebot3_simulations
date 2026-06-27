@@ -193,4 +193,44 @@
     </inertial>
   </link>
 
+  <!-- ======================================================================
+       Oak-D depth camera frames (matches the rgbd_camera sensor added to
+       turtlebot3_burger/model.sdf). robot_state_publisher publishes these
+       static TFs so RTAB-Map can relate base_footprint -> the camera optical
+       frame stamped on /oakd/image, /oakd/depth_image and /oakd/camera_info.
+
+       Height: the SDF places the sensor at z=0.130 above the model origin
+       (= base_footprint). base_link is +0.010 above base_footprint, so the
+       joint origin below is z=0.120 (relative to base_link) to line the TF up
+       with the rendered sensor.
+       ====================================================================== -->
+  <joint name="oakd_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="oakd_camera_link"/>
+    <origin xyz="0.045 0 0.120" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Physical camera body frame: x-forward, y-left, z-up (REP-103). -->
+  <link name="oakd_camera_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.018 0.091 0.025"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <!-- Optical frame: z-forward, x-right, y-down (REP-103 camera optical
+       convention). The fixed -pi/2, 0, -pi/2 rotation off the body frame is
+       the standard ROS optical transform; gz_frame_id in the SDF names this
+       same frame, so the rendered depth/RGB data is interpreted correctly. -->
+  <joint name="oakd_rgb_optical_joint" type="fixed">
+    <parent link="oakd_camera_link"/>
+    <child link="oakd_rgb_optical_frame"/>
+    <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
+  </joint>
+
+  <link name="oakd_rgb_optical_frame"/>
+
 </robot>
