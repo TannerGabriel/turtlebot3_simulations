@@ -19,12 +19,16 @@
   gz_type_name: "gz.msgs.Odometry"
   direction: GZ_TO_ROS
 
-# gz topic published by DiffDrive plugin
-- ros_topic_name: "tf"
-  gz_topic_name: "tf"
-  ros_type_name: "tf2_msgs/msg/TFMessage"
-  gz_type_name: "gz.msgs.Pose_V"
-  direction: GZ_TO_ROS
+# DiffDrive plugin's raw odom->base_footprint TF is intentionally NOT bridged.
+# robot_localization's EKF (see exploration.launch.py + config/ekf.yaml) is the
+# sole publisher of odom->base_footprint: it fuses the /odom velocities with the
+# IMU yaw rate so the heading stays straight. Bridging the raw wheel TF here
+# would create a second, drifting publisher and fight the EKF.
+# - ros_topic_name: "tf"
+#   gz_topic_name: "tf"
+#   ros_type_name: "tf2_msgs/msg/TFMessage"
+#   gz_type_name: "gz.msgs.Pose_V"
+#   direction: GZ_TO_ROS
 
 # gz topic subscribed to by DiffDrive plugin
 - ros_topic_name: "cmd_vel"
@@ -73,9 +77,11 @@
   gz_type_name: "gz.msgs.CameraInfo"
   direction: GZ_TO_ROS
 
-# gz topic published by the Oak-D rgbd_camera (point cloud — optional/heavy)
-- ros_topic_name: "oakd/points"
-  gz_topic_name: "oakd/points"
-  ros_type_name: "sensor_msgs/msg/PointCloud2"
-  gz_type_name: "gz.msgs.PointCloudPacked"
-  direction: GZ_TO_ROS
+# Oak-D point cloud is intentionally NOT bridged: rtabmap consumes
+# image+depth+camera_info (via rgbd_sync), not points, and the PointCloud2
+# conversion is heavy enough to hurt RTF. Re-add only for RViz debugging.
+# - ros_topic_name: "oakd/points"
+#   gz_topic_name: "oakd/points"
+#   ros_type_name: "sensor_msgs/msg/PointCloud2"
+#   gz_type_name: "gz.msgs.PointCloudPacked"
+#   direction: GZ_TO_ROS
